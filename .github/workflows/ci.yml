@@ -51,6 +51,48 @@ jobs:
           test-results/
           playwright-report/
         retention-days: 30
+    
+    - name: Publish Test Report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Playwright Tests (Node ${{ matrix.node-version }})
+        path: test-results/results.xml
+        reporter: java-junit
+        fail-on-error: false
+    
+    - name: Generate Test Summary
+      if: always()
+      run: |
+        echo "## 🎭 Playwright Test Results (Node ${{ matrix.node-version }})" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "test-results/results.json" ]; then
+          # Parse JSON results for summary
+          TOTAL=$(jq '.suites | map(.specs | length) | add' test-results/results.json 2>/dev/null || echo "0")
+          PASSED=$(jq '[.suites[].specs[].tests[] | select(.status == "passed")] | length' test-results/results.json 2>/dev/null || echo "0")
+          FAILED=$(jq '[.suites[].specs[].tests[] | select(.status == "failed")] | length' test-results/results.json 2>/dev/null || echo "0")
+          SKIPPED=$(jq '[.suites[].specs[].tests[] | select(.status == "skipped")] | length' test-results/results.json 2>/dev/null || echo "0")
+          
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+          echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⏭️ Skipped | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📊 Total | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$FAILED" -gt "0" ]; then
+            echo "❌ **Some tests failed. Check the detailed report for more information.**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **All tests passed successfully!**" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "📋 Test results file not found. Check test execution logs." >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 **Detailed HTML Report**: Check the artifacts section for the complete Playwright HTML report." >> $GITHUB_STEP_SUMMARY
 
   code-quality:
     name: Code Quality Checks
