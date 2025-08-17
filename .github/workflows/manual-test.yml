@@ -1,0 +1,135 @@
+name: Manual Test Execution
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ui
+          - api
+      browser:
+        description: 'Browser for UI tests'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+      headed:
+        description: 'Run UI tests in headed mode'
+        required: false
+        default: false
+        type: boolean
+      debug:
+        description: 'Run tests in debug mode'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  manual-test:
+    name: Manual Test Execution
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+    
+    - name: Create .env file
+      run: |
+        echo "SAUCEDEMO_BASE_URL=${{ secrets.SAUCEDEMO_BASE_URL }}" >> .env
+        echo "SAUCEDEMO_USERNAME=${{ secrets.SAUCEDEMO_USERNAME }}" >> .env
+        echo "SAUCEDEMO_PASSWORD=${{ secrets.SAUCEDEMO_PASSWORD }}" >> .env
+        echo "AIRPORTGAP_BASE_URL=${{ secrets.AIRPORTGAP_BASE_URL }}" >> .env
+    
+    - name: Run All Tests
+      if: ${{ inputs.test_type == 'all' }}
+      run: |
+        if [ "${{ inputs.debug }}" == "true" ]; then
+          echo "Debug mode enabled"
+          npm test -- --reporter=list
+        else
+          npm test
+        fi
+    
+    - name: Run UI Tests Only
+      if: ${{ inputs.test_type == 'ui' }}
+      run: |
+        TEST_CMD="npx playwright test tests/ui/"
+        
+        if [ "${{ inputs.browser }}" != "all" ]; then
+          TEST_CMD="$TEST_CMD --project=${{ inputs.browser }}"
+        fi
+        
+        if [ "${{ inputs.headed }}" == "true" ]; then
+          TEST_CMD="$TEST_CMD --headed"
+        fi
+        
+        if [ "${{ inputs.debug }}" == "true" ]; then
+          TEST_CMD="$TEST_CMD --debug"
+        fi
+        
+        echo "Running: $TEST_CMD"
+        eval $TEST_CMD
+    
+    - name: Run API Tests Only
+      if: ${{ inputs.test_type == 'api' }}
+      run: |
+        if [ "${{ inputs.debug }}" == "true" ]; then
+          npx playwright test tests/api/ --reporter=list
+        else
+          npx playwright test tests/api/
+        fi
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: manual-test-results-${{ inputs.test_type }}-${{ github.run_number }}
+        path: |
+          test-results/
+          playwright-report/
+        retention-days: 7
+    
+    - name: Upload screenshots on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: manual-test-screenshots-${{ github.run_number }}
+        path: test-results/
+        retention-days: 7
+    
+    - name: Test Summary
+      if: always()
+      run: |
+        echo "## 🎯 Manual Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Test Type**: ${{ inputs.test_type }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Browser**: ${{ inputs.browser }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Headed Mode**: ${{ inputs.headed }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Debug Mode**: ${{ inputs.debug }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Workflow Run**: #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "test-results/results.json" ]; then
+          echo "📊 **Test Results Available** - Check artifacts for detailed reports" >> $GITHUB_STEP_SUMMARY
+        fi
