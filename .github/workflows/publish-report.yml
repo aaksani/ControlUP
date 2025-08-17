@@ -44,6 +44,8 @@ jobs:
       if: always()
       run: |
         mkdir -p public
+        
+        # Create a basic landing page first
         cat > public/index.html << 'EOF'
         <!DOCTYPE html>
         <html>
@@ -57,32 +59,53 @@ jobs:
                 .report-link { padding: 15px 25px; background: #007acc; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
                 .report-link:hover { background: #005999; }
                 .info { background: #e8f4fd; padding: 15px; border-radius: 5px; margin: 20px 0; }
-                .timestamp { color: #666; font-size: 14px; }
+                .debug { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; }
             </style>
         </head>
         <body>
             <div class="container">
                 <h1>🎭 Playwright Test Reports</h1>
                 <div class="info">
-                    <p><strong>Latest Test Run:</strong> <span class="timestamp">${{ github.event.workflow_run.created_at }}</span></p>
-                    <p><strong>Workflow:</strong> ${{ github.event.workflow_run.name }}</p>
-                    <p><strong>Commit:</strong> ${{ github.event.workflow_run.head_sha }}</p>
+                    <p><strong>Status:</strong> Reports system active</p>
+                    <p><strong>Last Updated:</strong> $(date)</p>
+                </div>
+                <div class="debug">
+                    <h3>Debug Info:</h3>
+                    <p>Artifacts found: $(find artifacts -type f 2>/dev/null | wc -l || echo "0")</p>
+                    <p>Playwright report exists: $([ -d "artifacts/playwright-report" ] && echo "Yes" || echo "No")</p>
                 </div>
                 <div class="report-links">
                     <a href="./playwright-report/" class="report-link">📊 HTML Report</a>
-                    <a href="https://github.com/${{ github.repository }}/actions" class="report-link">🔄 Actions</a>
+                    <a href="https://github.com/aaksani/ControlUP/actions" class="report-link">🔄 Actions</a>
                 </div>
-                <p>The HTML report contains detailed test results, screenshots, and traces for failed tests.</p>
             </div>
         </body>
         </html>
         EOF
         
-        # Copy playwright report if it exists
+        # Create a simple placeholder report if no artifacts
         if [ -d "artifacts/playwright-report" ]; then
+          echo "Copying real playwright report..."
           cp -r artifacts/playwright-report public/
         else
-          echo "<h2>No Playwright HTML report found</h2>" > public/playwright-report.html
+          echo "Creating placeholder report..."
+          mkdir -p public/playwright-report
+          cat > public/playwright-report/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head><title>Test Report Placeholder</title></head>
+        <body>
+          <h1>Test Reports</h1>
+          <p>No test artifacts found. This may be because:</p>
+          <ul>
+            <li>CI/CD Pipeline failed</li>
+            <li>Tests didn't complete successfully</li>
+            <li>Artifacts weren't uploaded</li>
+          </ul>
+          <p><a href="../">Back to main page</a></p>
+        </body>
+        </html>
+        EOF
         fi
     
     - name: Upload Pages artifact

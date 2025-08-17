@@ -127,3 +127,4 @@ To run tests in CI/CD, configure these repository secrets:
 | `SAUCEDEMO_USERNAME` | SauceDemo username |
 | `SAUCEDEMO_PASSWORD` | SauceDemo password |
 | `AIRPORTGAP_BASE_URL` | Airport Gap API base URL |# Test trigger
+# Debug trigger Sun Aug 17 21:21:22 CEST 2025
