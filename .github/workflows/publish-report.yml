@@ -17,34 +17,9 @@ jobs:
   publish-report:
     name: Publish HTML Report
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure' }}
     
     steps:
-    - name: Wait for all matrix jobs to complete
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const workflow_run = context.payload.workflow_run;
-          console.log(`Triggered by: ${workflow_run.name} - ${workflow_run.conclusion}`);
-          
-          // Only proceed if this is from CI/CD Pipeline and it's the final completion
-          if (workflow_run.name === 'CI/CD Pipeline') {
-            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: workflow_run.id,
-            });
-            
-            const inProgressJobs = jobs.jobs.filter(job => job.status === 'in_progress' || job.status === 'queued');
-            
-            if (inProgressJobs.length > 0) {
-              console.log('Other matrix jobs still running, skipping this publish run');
-              process.exit(78); // neutral exit code
-            } else {
-              console.log('All matrix jobs completed, proceeding with publish');
-            }
-          }
-    
     - name: Checkout repository
       uses: actions/checkout@v5
     
