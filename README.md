@@ -36,6 +36,39 @@ AIRPORTGAP_BASE_URL=https://airportgap.com/api
 npm test
 ```
 
+### 4. View Test Reports
+After running tests, you can view reports in multiple ways:
+
+#### 📊 Local Reports
+```bash
+# Open HTML report locally after test run
+npx playwright show-report
+```
+
+#### 🌐 Live Reports (GitHub Pages)
+Access live test reports online:
+**https://aaksani.github.io/ControlUP/**
+
+- **📋 Landing Page**: Overview with latest test run information
+- **📊 HTML Report**: Click "HTML Report" button for detailed results
+- **🔗 GitHub Actions**: Click "Actions" button to view workflow history
+
+#### 📱 GitHub Actions Reports
+View test results directly in GitHub:
+1. Go to **Actions** tab in the repository
+2. Click on any **CI/CD Pipeline** workflow run
+3. Check the **Test Results** section for JUnit reports
+4. Download **Artifacts** for offline viewing
+
+#### 🎯 Report Features
+The HTML reports include:
+- ✅ **Test execution summary** with pass/fail counts
+- 📸 **Screenshots** of UI test steps and failures
+- 🎥 **Video recordings** of test execution
+- 🔍 **Test traces** for detailed debugging
+- 📊 **Performance metrics** and timing data
+- 🌐 **Network logs** and console output
+
 ## GitHub Actions CI/CD
 
 This repository includes automated GitHub Actions workflows for continuous integration and testing.
