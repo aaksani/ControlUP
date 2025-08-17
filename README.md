@@ -46,19 +46,21 @@ npx playwright show-report
 ```
 
 #### 🌐 Live Reports (GitHub Pages)
-Access live test reports online:
+Access the interactive Playwright HTML report online:
 **https://aaksani.github.io/ControlUP/**
 
-- **📋 Landing Page**: Overview with latest test run information
-- **📊 HTML Report**: Click "HTML Report" button for detailed results
-- **🔗 GitHub Actions**: Click "Actions" button to view workflow history
+The live report is automatically updated on every push to main and includes:
+- **📊 Interactive test results** with full Playwright UI
+- **🔍 Detailed test traces** for debugging
+- **📸 Screenshots and videos** of test execution
+- **📈 Performance metrics** and timing data
 
 #### 📱 GitHub Actions Reports
-View test results directly in GitHub:
+Monitor test execution in real-time:
 1. Go to **Actions** tab in the repository
-2. Click on any **CI/CD Pipeline** workflow run
-3. Check the **Test Results** section for JUnit reports
-4. Download **Artifacts** for offline viewing
+2. Click on **"Deploy Playwright Reports"** workflow
+3. View **live logs** during test execution
+4. **Automatic deployment** to GitHub Pages upon completion
 
 #### 🎯 Report Features
 The HTML reports include:
@@ -75,8 +77,15 @@ This repository includes automated GitHub Actions workflows for continuous integ
 
 ### Automated Workflows
 
-#### 🔄 CI/CD Pipeline
-Automatically runs on every push and pull request:
+#### 🚀 Deploy Playwright Reports
+Automatically runs on every push to main:
+- **Fresh Test Execution**: Runs all UI and API tests
+- **Environment Setup**: Configures test credentials securely
+- **HTML Report Generation**: Creates interactive Playwright reports
+- **GitHub Pages Deployment**: Publishes reports to live URL
+
+#### 🔄 CI/CD Pipeline  
+Runs on push and pull requests for code quality:
 - **Multi-Node Testing**: Tests on Node.js 18 & 20
 - **TypeScript Type Checking**: Validates code types
 - **Dependency Audit**: Checks for security vulnerabilities
@@ -87,35 +96,28 @@ Automatically runs on every push and pull request:
 - **Dependency Updates**: Automated via Dependabot
 - **Weekly Security Scans**: Proactive vulnerability detection
 
-### Manual Test Execution
+### Manual Report Generation
 
-You can run tests manually through GitHub Actions with custom options:
+You can manually trigger report generation and deployment:
 
-#### 🎯 How to Run Manual Tests:
+#### 🎯 How to Generate Reports Manually:
 1. Go to [**Actions**](../../actions) tab in GitHub
-2. Select **"Manual Test Execution"** workflow
+2. Select **"Deploy Playwright Reports"** workflow  
 3. Click **"Run workflow"**
-4. Configure your options:
-   - **Test Type**: `all`, `ui`, or `api`
-   - **Browser**: `chromium`, `firefox`, `webkit`, or `all`
-   - **Headed Mode**: Show browser window
-   - **Debug Mode**: Enhanced logging
-5. Click **"Run workflow"** to start
+4. Click **"Run workflow"** to start
+5. **Reports will be deployed** to GitHub Pages automatically
 
-#### 📋 Manual Test Options:
+This is useful for:
+- **Testing changes** before merging
+- **Regenerating reports** after configuration updates
+- **Manual verification** of test execution
 
-| Option | Description | Values |
-|--------|-------------|---------|
-| **Test Type** | Which tests to run | `all` / `ui` / `api` |
-| **Browser** | Browser for UI tests | `chromium` / `firefox` / `webkit` / `all` |
-| **Headed** | Show browser window | `true` / `false` |
-| **Debug** | Enable debug mode | `true` / `false` |
-
-#### 📊 Test Artifacts:
-- **Test Reports**: HTML and JSON reports
-- **Screenshots**: Failure screenshots
-- **Execution Summary**: Detailed workflow results
-- **Retention**: Artifacts kept for 7 days
+#### 📊 Generated Reports:
+- **📋 Interactive HTML Report**: Full Playwright test results
+- **📸 Screenshots**: UI test steps and failure captures  
+- **🎥 Video Recordings**: Complete test execution videos
+- **🔍 Test Traces**: Detailed debugging information
+- **📈 Performance Metrics**: Test timing and execution data
 
 ### GitHub Secrets Configuration
 
@@ -126,5 +128,4 @@ To run tests in CI/CD, configure these repository secrets:
 | `SAUCEDEMO_BASE_URL` | SauceDemo base URL |
 | `SAUCEDEMO_USERNAME` | SauceDemo username |
 | `SAUCEDEMO_PASSWORD` | SauceDemo password |
-| `AIRPORTGAP_BASE_URL` | Airport Gap API base URL |# Test trigger
-# Debug trigger Sun Aug 17 21:21:22 CEST 2025
+| `AIRPORTGAP_BASE_URL` | Airport Gap API base URL |
