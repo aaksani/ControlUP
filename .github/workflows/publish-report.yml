@@ -30,9 +30,16 @@ jobs:
         pattern: test-results-*
         merge-multiple: true
     
+    - name: Check for test results
+      run: |
+        echo "Checking for test results files..."
+        find artifacts -name "*.xml" -type f || echo "No XML files found"
+        find artifacts -type f || echo "No files found in artifacts"
+        ls -la artifacts/ || echo "No artifacts directory"
+    
     - name: Publish Test Results
       uses: dorny/test-reporter@v1
-      if: success() || failure()
+      if: hashFiles('artifacts/test-results/results.xml') != ''
       with:
         name: 'Test Results'
         path: 'artifacts/test-results/results.xml'
