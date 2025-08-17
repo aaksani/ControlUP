@@ -74,7 +74,7 @@ jobs:
     - name: Check for unused dependencies
       run: |
         npm install -g depcheck
-        depcheck --skip-missing
+        depcheck --skip-missing --ignores="typescript,@types/*"
     
     - name: Security audit
       run: npm audit --audit-level=moderate
